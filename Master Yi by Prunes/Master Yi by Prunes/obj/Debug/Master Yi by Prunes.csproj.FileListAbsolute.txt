@@ -1,0 +1,11 @@
+C:\Users\Brandon\Desktop\Visual Studio\Master Yi by Prunes\Master Yi by Prunes\bin\Release\Master Yi by Prunes.exe.config
+C:\Users\Brandon\Desktop\Visual Studio\Master Yi by Prunes\Master Yi by Prunes\bin\Release\Master Yi by Prunes.exe
+C:\Users\Brandon\Desktop\Visual Studio\Master Yi by Prunes\Master Yi by Prunes\bin\Release\Master Yi by Prunes.pdb
+C:\Users\Brandon\Desktop\Visual Studio\Master Yi by Prunes\Master Yi by Prunes\bin\Release\LeagueSharp.Common.dll
+C:\Users\Brandon\Desktop\Visual Studio\Master Yi by Prunes\Master Yi by Prunes\bin\Release\LeagueSharp.dll
+C:\Users\Brandon\Desktop\Visual Studio\Master Yi by Prunes\Master Yi by Prunes\bin\Release\SharpDX.dll
+C:\Users\Brandon\Desktop\Visual Studio\Master Yi by Prunes\Master Yi by Prunes\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\Brandon\Desktop\Visual Studio\Master Yi by Prunes\Master Yi by Prunes\bin\Release\LeagueSharp.xml
+C:\Users\Brandon\Desktop\Visual Studio\Master Yi by Prunes\Master Yi by Prunes\obj\Debug\Master Yi by Prunes.csprojResolveAssemblyReference.cache
+C:\Users\Brandon\Desktop\Visual Studio\Master Yi by Prunes\Master Yi by Prunes\obj\Debug\Master Yi by Prunes.exe
+C:\Users\Brandon\Desktop\Visual Studio\Master Yi by Prunes\Master Yi by Prunes\obj\Debug\Master Yi by Prunes.pdb
