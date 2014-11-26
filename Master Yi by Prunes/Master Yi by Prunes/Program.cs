@@ -63,7 +63,7 @@ namespace MasterYiByPrunes
             Config.AddToMainMenu();
 
             Game.OnGameUpdate += Game_OnGameUpdate;
-            Game.PrintChat("Master Yi by Prunes");
+            Game.PrintChat("<font color='#0000FF'>Master Yi</font><font color='#BABABA'>By Prunes</font> <font color='#FFFFFF'></font>");
         }
 
         static void Game_OnGameUpdate(EventArgs args)
