@@ -75,24 +75,24 @@ namespace MasterYiByPrunes
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
             if (target == null) return;
 
-            var useQ = Config.Item("UseQ").GetValue<bool>();
-            var useW = Config.Item("UseW").GetValue<bool>();
-            var useE = Config.Item("UseE").GetValue<bool>();
-            var useR = Config.Item("UseE").GetValue<bool>();
+          //  var useQ = Config.Item("UseQ").GetValue<bool>();
+           // var useW = Config.Item("UseW").GetValue<bool>();
+           // var useE = Config.Item("UseE").GetValue<bool>();
+           // var useR = Config.Item("UseE").GetValue<bool>();
 
-            if (target.IsValidTarget(Q.Range) && R.IsReady() && useR)
+            if (target.IsValidTarget(Q.Range) && R.IsReady())
             {
                 R.Cast();
             }
-            if (target.IsValidTarget(Q.Range) && Q.IsReady() && useQ)
+            if (target.IsValidTarget(Q.Range) && Q.IsReady())
             {
                 Q.CastOnUnit(target);
             }
-            if (target.IsValidTarget(Q.Range) && E.IsReady() && useE)
+            if (target.IsValidTarget(Q.Range) && E.IsReady())
             {
                 E.Cast();
             }
-            else if (target.IsValidTarget(Q.Range) && W.IsReady() && Orbwalking.InAutoAttackRange(target) && useW)
+            else if (target.IsValidTarget(Q.Range) && W.IsReady() && Orbwalking.InAutoAttackRange(target))
             {
                 Player.IssueOrder(GameObjectOrder.AttackTo, target);
                 Utility.DelayAction.Add(350, () => W.Cast());
