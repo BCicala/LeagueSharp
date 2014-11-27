@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Channels;
 using LeagueSharp;
 using LeagueSharp.Common;
 namespace MasterYiByPrunes
@@ -59,6 +62,8 @@ namespace MasterYiByPrunes
             Config.AddToMainMenu();
 
             Game.OnGameUpdate += Game_OnGameUpdate;
+            GameObject.OnCreate += GameObject_OnCreate;
+
             Game.PrintChat("<font color='#00FFFF'>Master Yi</font><font color='#008000'> By Prunes</font>");
         }
 
@@ -76,7 +81,8 @@ namespace MasterYiByPrunes
   
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
             if (target == null) return;
-
+            var target2 = SimpleTs.GetTarget(300, SimpleTs.DamageType.Physical);
+            
 
             if (target.IsValidTarget(Q.Range) && R.IsReady() && Config.Item("useR").GetValue<bool>())
             {
@@ -121,11 +127,53 @@ namespace MasterYiByPrunes
             {
                 randuinsItem.Cast();
             }
-            else if (target.IsEnemy && target.IsValidTarget() && !target.IsMinion)
+            /*
+            if (Orbwalking.InAutoAttackRange(target2))
             {
-                Player.IssueOrder(GameObjectOrder.AttackUnit, target);
-
+                Orbwalker.SetMovement(false);
+            }
+            if (!Orbwalking.InAutoAttackRange(target2) || target2 == null)
+            {
+                Orbwalker.SetMovement(true);
+            }
+             */
+            
+            else if (target2.IsEnemy && target2.IsValidTarget() && !target2.IsMinion)
+            {
+                Player.IssueOrder(GameObjectOrder.AttackUnit, target2);
             }
         }
+
+
+        public static void Qlogic() //not implemented yet
+        {
+            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+
+            if (target.IsDashing() || target.LastCastedSpellName() == "SummonerFlash")
+            {
+                Q.CastOnUnit(target);
+            }
+            if (Player.Health < Player.MaxHealth/2)
+            {
+                Q.CastOnUnit(target);
+            }
+
+        }
+
+        static void GameObject_OnCreate(GameObject turret, EventArgs args)
+        {
+            var target = ObjectManager.Get<Obj_AI_Minion>().First(it => it.IsValidTarget(Q.Range));
+          
+            if (Q.IsReady() && turret is Obj_SpellMissile)
+            {
+                var attack = turret as Obj_SpellMissile;
+                if (attack.SpellCaster is Obj_AI_Turret && attack.SpellCaster.IsEnemy && attack.Target.IsMe)
+                {
+                    Q.CastOnUnit(target);
+                }
+                  
+            }
+        }
+
     }
 }
