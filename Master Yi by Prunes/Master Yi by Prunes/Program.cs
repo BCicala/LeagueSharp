@@ -163,8 +163,10 @@ namespace MasterYiByPrunes
         static void GameObject_OnCreate(GameObject turret, EventArgs args)
         {
             var target = ObjectManager.Get<Obj_AI_Minion>().First(it => it.IsValidTarget(Q.Range));
+            var champion = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+
           
-            if (Q.IsReady() && turret is Obj_SpellMissile)
+            if (Q.IsReady() && turret is Obj_SpellMissile && champion.IsDead)
             {
                 var attack = turret as Obj_SpellMissile;
                 if (attack.SpellCaster is Obj_AI_Turret && attack.SpellCaster.IsEnemy && attack.Target.IsMe)
