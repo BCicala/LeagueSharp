@@ -107,11 +107,11 @@ namespace MasterYiByPrunes
             }
             if (botrkItem.IsReady() && target.IsValidTarget(botrkItem.Range))
             {
-                botrkItem.Cast();
+                botrkItem.Cast(target);
             }
             if (bilgeItem.IsReady() && target.IsValidTarget(bilgeItem.Range))
             {
-                bilgeItem.Cast();
+                bilgeItem.Cast(target);
             }
             if (GhostbladeItem.IsReady() && target.IsValidTarget(Q.Range))
             {
@@ -124,6 +124,7 @@ namespace MasterYiByPrunes
             else if (target.IsEnemy && target.IsValidTarget() && !target.IsMinion)
             {
                 Player.IssueOrder(GameObjectOrder.AttackUnit, target);
+
             }
         }
     }
