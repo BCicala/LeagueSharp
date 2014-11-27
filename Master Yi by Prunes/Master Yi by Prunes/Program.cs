@@ -73,27 +73,24 @@ namespace MasterYiByPrunes
 
         public static void Combo()
         {
+  
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
             if (target == null) return;
 
-          //  var useQ = Config.Item("UseQ").GetValue<bool>();
-           // var useW = Config.Item("UseW").GetValue<bool>();
-           // var useE = Config.Item("UseE").GetValue<bool>();
-           // var useR = Config.Item("UseE").GetValue<bool>();
 
-            if (target.IsValidTarget(Q.Range) && R.IsReady())
+            if (target.IsValidTarget(Q.Range) && R.IsReady() && Config.Item("useR").GetValue<bool>())
             {
                 R.Cast();
             }
-            if (target.IsValidTarget(Q.Range) && Q.IsReady())
+            if (target.IsValidTarget(Q.Range) && Q.IsReady() && Config.Item("useQ").GetValue<bool>())
             {
                 Q.CastOnUnit(target);
             }
-            if (target.IsValidTarget(Q.Range) && E.IsReady())
+            if (target.IsValidTarget(Q.Range) && E.IsReady() && Config.Item("useE").GetValue<bool>())
             {
                 E.Cast();
             }
-            else if (target.IsValidTarget(Q.Range) && W.IsReady() && Orbwalking.InAutoAttackRange(target))
+            else if (target.IsValidTarget(Q.Range) && W.IsReady() && Orbwalking.InAutoAttackRange(target) && Config.Item("useW").GetValue<bool>())
             {
                // Player.IssueOrder(GameObjectOrder.AttackTo, target);
                 Utility.DelayAction.Add(350, () => W.Cast());
