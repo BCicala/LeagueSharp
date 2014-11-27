@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using LeagueSharp;
 using LeagueSharp.Common;
 namespace MasterYiByPrunes
@@ -94,9 +95,9 @@ namespace MasterYiByPrunes
             }
             else if (target.IsValidTarget(Q.Range) && W.IsReady() && Orbwalking.InAutoAttackRange(target))
             {
-                Player.IssueOrder(GameObjectOrder.AttackTo, target);
+               // Player.IssueOrder(GameObjectOrder.AttackTo, target);
                 Utility.DelayAction.Add(350, () => W.Cast());
-                Player.IssueOrder(GameObjectOrder.AttackTo, target);
+               // Player.IssueOrder(GameObjectOrder.AttackTo, target);
                 Orbwalking.ResetAutoAttackTimer();
             }
             if (tiamatItem.IsReady() && target.IsValidTarget(tiamatItem.Range))
@@ -122,6 +123,10 @@ namespace MasterYiByPrunes
             if (randuinsItem.IsReady() && target.IsValidTarget(randuinsItem.Range))
             {
                 randuinsItem.Cast();
+            }
+            else if (target.IsEnemy && target.IsValidTarget() && !target.IsMinion)
+            {
+                Player.IssueOrder(GameObjectOrder.AttackUnit, target);
             }
         }
     }
