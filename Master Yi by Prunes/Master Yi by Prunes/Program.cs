@@ -59,6 +59,7 @@ namespace MasterYiByPrunes
             Config.SubMenu("Combo").AddItem(new MenuItem("useE", "Use E?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("useR", "Use R?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo").SetValue(new KeyBind(32, KeyBindType.Press)));
+            Config.SubMenu("Combo").AddItem(new MenuItem("Combo2", "Combo Without Magnet").SetValue(new KeyBind(67, KeyBindType.Press)));
             Config.AddToMainMenu();
 
             Game.OnGameUpdate += Game_OnGameUpdate;
@@ -72,6 +73,10 @@ namespace MasterYiByPrunes
             if (Config.Item("ComboActive").GetValue<KeyBind>().Active)
             {
                 Combo();
+            }
+            if (Config.Item("Combo2").GetValue<KeyBind>().Active)
+            {
+                Combo2();
             }
         }
 
@@ -141,6 +146,59 @@ namespace MasterYiByPrunes
             else if (target2.IsEnemy && target2.IsValidTarget() && !target2.IsMinion)
             {
                 Player.IssueOrder(GameObjectOrder.AttackUnit, target2);
+            }
+        }
+
+        public static void Combo2()
+        {
+
+            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+            if (target == null) return;
+            var target2 = SimpleTs.GetTarget(300, SimpleTs.DamageType.Physical);
+
+
+            if (target.IsValidTarget(Q.Range) && R.IsReady() && Config.Item("useR").GetValue<bool>())
+            {
+                R.Cast();
+            }
+            if (target.IsValidTarget(Q.Range) && Q.IsReady() && Config.Item("useQ").GetValue<bool>())
+            {
+                Q.CastOnUnit(target);
+            }
+            if (target.IsValidTarget(Q.Range) && E.IsReady() && Config.Item("useE").GetValue<bool>())
+            {
+                E.Cast();
+            }
+            else if (target.IsValidTarget(Q.Range) && W.IsReady() && Orbwalking.InAutoAttackRange(target) && Config.Item("useW").GetValue<bool>())
+            {
+                 Player.IssueOrder(GameObjectOrder.AttackTo, target);
+                Utility.DelayAction.Add(350, () => W.Cast());
+                 Player.IssueOrder(GameObjectOrder.AttackTo, target);
+                Orbwalking.ResetAutoAttackTimer();
+            }
+            if (tiamatItem.IsReady() && target.IsValidTarget(tiamatItem.Range))
+            {
+                tiamatItem.Cast();
+            }
+            if (hydraItem.IsReady() && target.IsValidTarget(tiamatItem.Range))
+            {
+                hydraItem.Cast();
+            }
+            if (botrkItem.IsReady() && target.IsValidTarget(botrkItem.Range))
+            {
+                botrkItem.Cast(target);
+            }
+            if (bilgeItem.IsReady() && target.IsValidTarget(bilgeItem.Range))
+            {
+                bilgeItem.Cast(target);
+            }
+            if (GhostbladeItem.IsReady() && target.IsValidTarget(Q.Range))
+            {
+                GhostbladeItem.Cast();
+            }
+            if (randuinsItem.IsReady() && target.IsValidTarget(randuinsItem.Range))
+            {
+                randuinsItem.Cast();
             }
         }
 
