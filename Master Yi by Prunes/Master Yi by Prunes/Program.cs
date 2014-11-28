@@ -58,7 +58,7 @@ namespace MasterYiByPrunes
             Config.SubMenu("Combo").AddItem(new MenuItem("useW", "Use W?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("useE", "Use E?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("useR", "Use R?").SetValue(true));
-            Config.SubMenu("Combo").AddItem(new MenuItem("smartQ", "Save Q for dodging/gapclose?").SetValue(true));
+            Config.SubMenu("Combo").AddItem(new MenuItem("smartQ", "Save Q for dodging/gapclose?").SetValue(false));
             Config.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo").SetValue(new KeyBind(32, KeyBindType.Press)));
             Config.SubMenu("Combo").AddItem(new MenuItem("Combo2", "Combo Without Magnet").SetValue(new KeyBind(67, KeyBindType.Press)));
             Config.AddToMainMenu();
@@ -147,6 +147,15 @@ namespace MasterYiByPrunes
             var target2 = SimpleTs.GetTarget(300, SimpleTs.DamageType.Physical);
 
 
+
+            if (bilgeItem.IsReady() && target.IsValidTarget(bilgeItem.Range))
+            {
+                bilgeItem.Cast(target);
+            }
+            if (GhostbladeItem.IsReady() && target.IsValidTarget(Q.Range))
+            {
+                GhostbladeItem.Cast();
+            }
             if (target.IsValidTarget(Q.Range) && R.IsReady() && Config.Item("useR").GetValue<bool>())
             {
                 R.Cast();
@@ -178,14 +187,7 @@ namespace MasterYiByPrunes
             {
                 botrkItem.Cast(target);
             }
-            if (bilgeItem.IsReady() && target.IsValidTarget(bilgeItem.Range))
-            {
-                bilgeItem.Cast(target);
-            }
-            if (GhostbladeItem.IsReady() && target.IsValidTarget(Q.Range))
-            {
-                GhostbladeItem.Cast();
-            }
+
             if (randuinsItem.IsReady() && target.IsValidTarget(randuinsItem.Range))
             {
                 randuinsItem.Cast();
@@ -198,7 +200,7 @@ namespace MasterYiByPrunes
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
 
 
-            if ((Player.MoveSpeed - target.MoveSpeed) < 25 && target.IsMoving && Config.Item("smartQ").GetValue<bool>())
+            if ((Player.MoveSpeed - target.MoveSpeed) < 50 && target.IsMoving && Config.Item("smartQ").GetValue<bool>())
             {
                 Q.CastOnUnit(target);
             }
@@ -206,7 +208,7 @@ namespace MasterYiByPrunes
             {
                 Q.CastOnUnit(target);
             }
-            if (Player.Health < Player.MaxHealth / 2 && Config.Item("smartQ").GetValue<bool>())
+            if (Player.Health < Player.MaxHealth / 4 && Config.Item("smartQ").GetValue<bool>())
             {
                 Q.CastOnUnit(target);
             }
@@ -220,10 +222,10 @@ namespace MasterYiByPrunes
         static void GameObject_OnCreate(GameObject turret, EventArgs args)
         {
             var target = ObjectManager.Get<Obj_AI_Minion>().First(it => it.IsValidTarget(Q.Range));
-            var champion = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+            var champion = ObjectManager.Get<Obj_AI_Hero>().First(it => it.IsValidTarget(Q.Range));
 
           
-            if (Q.IsReady() && turret is Obj_SpellMissile && (champion.IsDead || !champion.IsValid))
+            if (Q.IsReady() && turret is Obj_SpellMissile && (champion.IsDead || !champion.IsTargetable))
             {
                 var attack = turret as Obj_SpellMissile;
                 if (attack.SpellCaster is Obj_AI_Turret && attack.SpellCaster.IsEnemy && attack.Target.IsMe)
