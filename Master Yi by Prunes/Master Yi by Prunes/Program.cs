@@ -58,6 +58,7 @@ namespace MasterYiByPrunes
             Config.SubMenu("Combo").AddItem(new MenuItem("useW", "Use W?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("useE", "Use E?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("useR", "Use R?").SetValue(true));
+            Config.SubMenu("Combo").AddItem(new MenuItem("smartQ", "Save Q for dodging/gapclose?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo").SetValue(new KeyBind(32, KeyBindType.Press)));
             Config.SubMenu("Combo").AddItem(new MenuItem("Combo2", "Combo Without Magnet").SetValue(new KeyBind(67, KeyBindType.Press)));
             Config.AddToMainMenu();
@@ -95,7 +96,7 @@ namespace MasterYiByPrunes
             }
             if (target.IsValidTarget(Q.Range) && Q.IsReady() && Config.Item("useQ").GetValue<bool>())
             {
-                Q.CastOnUnit(target);
+                Qlogic();
             }
             if (target.IsValidTarget(Q.Range) && E.IsReady() && Config.Item("useE").GetValue<bool>())
             {
@@ -131,18 +132,7 @@ namespace MasterYiByPrunes
             if (randuinsItem.IsReady() && target.IsValidTarget(randuinsItem.Range))
             {
                 randuinsItem.Cast();
-            }
-            /*
-            if (Orbwalking.InAutoAttackRange(target2))
-            {
-                Orbwalker.SetMovement(false);
-            }
-            if (!Orbwalking.InAutoAttackRange(target2) || target2 == null)
-            {
-                Orbwalker.SetMovement(true);
-            }
-             */
-            
+            }        
             else if (target2.IsEnemy && target2.IsValidTarget() && !target2.IsMinion)
             {
                 Player.IssueOrder(GameObjectOrder.AttackUnit, target2);
@@ -163,7 +153,7 @@ namespace MasterYiByPrunes
             }
             if (target.IsValidTarget(Q.Range) && Q.IsReady() && Config.Item("useQ").GetValue<bool>())
             {
-                Q.CastOnUnit(target);
+               Qlogic();
             }
             if (target.IsValidTarget(Q.Range) && E.IsReady() && Config.Item("useE").GetValue<bool>())
             {
@@ -207,11 +197,20 @@ namespace MasterYiByPrunes
         {
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
 
-            if (target.IsDashing() || target.LastCastedSpellName() == "SummonerFlash")
+
+            if ((Player.MoveSpeed - target.MoveSpeed) < 25 && target.IsMoving && Config.Item("smartQ").GetValue<bool>())
             {
                 Q.CastOnUnit(target);
             }
-            if (Player.Health < Player.MaxHealth/2)
+            if ((target.IsDashing() || target.LastCastedSpellName() == "SummonerFlash") && Config.Item("smartQ").GetValue<bool>())
+            {
+                Q.CastOnUnit(target);
+            }
+            if (Player.Health < Player.MaxHealth / 2 && Config.Item("smartQ").GetValue<bool>())
+            {
+                Q.CastOnUnit(target);
+            }
+            if (!Config.Item("smartQ").GetValue<bool>())
             {
                 Q.CastOnUnit(target);
             }
@@ -224,7 +223,7 @@ namespace MasterYiByPrunes
             var champion = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
 
           
-            if (Q.IsReady() && turret is Obj_SpellMissile && champion.IsDead)
+            if (Q.IsReady() && turret is Obj_SpellMissile && (champion.IsDead || !champion.IsValid))
             {
                 var attack = turret as Obj_SpellMissile;
                 if (attack.SpellCaster is Obj_AI_Turret && attack.SpellCaster.IsEnemy && attack.Target.IsMe)
