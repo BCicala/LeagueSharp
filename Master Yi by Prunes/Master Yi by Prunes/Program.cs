@@ -16,6 +16,8 @@ namespace MasterYiByPrunes
         public static Spell Q, W, E, R;
         private static Items.Item tiamatItem, hydraItem, botrkItem, bilgeItem, randuinsItem, GhostbladeItem;
         public static Menu Config;
+        public static SpellSlot smiteSlot = SpellSlot.Unknown;
+        public static Spell smite;
         public static List<Spell> SpellList = new List<Spell>();
 
         static void Main(string[] args)
@@ -58,10 +60,14 @@ namespace MasterYiByPrunes
             Config.SubMenu("Combo").AddItem(new MenuItem("useW", "Use W?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("useE", "Use E?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("useR", "Use R?").SetValue(true));
+            Config.SubMenu("Combo").AddItem(new MenuItem("useSmite", "Use smite in combo?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("smartQ", "Save Q for dodging/gapclose?").SetValue(false));
             Config.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo").SetValue(new KeyBind(32, KeyBindType.Press)));
             Config.SubMenu("Combo").AddItem(new MenuItem("Combo2", "Combo Without Magnet").SetValue(new KeyBind(67, KeyBindType.Press)));
             Config.AddToMainMenu();
+
+            SmiteSlot();
+
 
             Game.OnGameUpdate += Game_OnGameUpdate;
             GameObject.OnCreate += GameObject_OnCreate;
@@ -94,6 +100,14 @@ namespace MasterYiByPrunes
             {
                 R.Cast();
             }
+
+            if (target.IsValidTarget(Q.Range) &&
+                ObjectManager.Player.SummonerSpellbook.CanUseSpell((smiteSlot)) == SpellState.Ready && (smitetype() == "s5_summonersmiteplayerganker" || smitetype() == "s5_summonersmiteduel") && Config.Item("useSmite").GetValue<bool>())
+            {
+                SmiteSlot();
+                ObjectManager.Player.SummonerSpellbook.CastSpell(smiteSlot, target);
+            }
+
             if (target.IsValidTarget(Q.Range) && Q.IsReady() && Config.Item("useQ").GetValue<bool>())
             {
                 Qlogic();
@@ -195,7 +209,7 @@ namespace MasterYiByPrunes
         }
 
 
-        public static void Qlogic() //not implemented yet
+        public static void Qlogic()
         {
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
 
@@ -236,5 +250,30 @@ namespace MasterYiByPrunes
             }
         }
 
+        public static readonly int[] RedMachete = { 3715, 3718, 3717, 3716, 3714 };
+        public static readonly int[] BlueMachete = { 3706, 3710, 3709, 3708, 3707 };
+        public static string smitetype()
+        {
+            if (BlueMachete.Any(Items.HasItem))
+            {
+                return "s5_summonersmiteplayerganker";
+            }
+            if (RedMachete.Any(Items.HasItem))
+            {
+                return "s5_summonersmiteduel";
+            }
+            return "summonersmite";
+        }
+
+
+        public static void SmiteSlot()
+        {
+            foreach (var spell in ObjectManager.Player.SummonerSpellbook.Spells.Where(spell => String.Equals(spell.Name, smitetype(), StringComparison.CurrentCultureIgnoreCase)))
+            {
+                smiteSlot = spell.Slot;
+                smite = new Spell(smiteSlot, 700);
+                return;
+            }
+        }
     }
 }
