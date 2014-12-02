@@ -68,9 +68,12 @@ namespace MasterYiByPrunes
             Config.SubMenu("Combo").AddItem(new MenuItem("useE", "Use E?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("useR", "Use R?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("useSmite", "Use smite in combo?").SetValue(true));
-            Config.SubMenu("Combo").AddItem(new MenuItem("smartQ", "Save Q for dodging/gapclose?").SetValue(false));
+            Config.SubMenu("Combo").AddItem(new MenuItem("smartQ", "Save Q for dodging/gapclose?").SetValue(true));
+            Config.SubMenu("Combo").AddItem(new MenuItem("Qks", "KS with Q?").SetValue(true));
+           // Config.SubMenu("Combo").AddItem(new MenuItem("MSdiff", "Movespeed difference for Q").SetValue(new Slider(50, 0, 200)));
             Config.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo").SetValue(new KeyBind(32, KeyBindType.Press)));
             Config.SubMenu("Combo").AddItem(new MenuItem("Combo2", "Combo Without Magnet").SetValue(new KeyBind(67, KeyBindType.Press)));
+
             Config.AddToMainMenu();
 
             Config.AddSubMenu(new Menu("Drawings", "Drawings"));
@@ -85,7 +88,7 @@ namespace MasterYiByPrunes
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
             Drawing.OnDraw += Drawing_OnDraw;
 
-            Game.PrintChat("<font color='#00FFFF'>Master Yi</font><font color='#008000'> By Prunes</font>");
+            Game.PrintChat("<font color='#00FFFF'>Master Yi</font><font color='#FFFFFF'> By Prunes</font>");
         }
 
         static void Game_OnGameUpdate(EventArgs args)
@@ -107,9 +110,9 @@ namespace MasterYiByPrunes
             if (menuItem.Active)
             {
                 if (Q.IsReady())
-                    Utility.DrawCircle(ObjectManager.Player.Position, Q.Range, System.Drawing.Color.Green);
+                    Utility.DrawCircle(ObjectManager.Player.Position, Q.Range, Color.Green);
                 else
-                    Utility.DrawCircle(ObjectManager.Player.Position, Q.Range, System.Drawing.Color.Red);
+                    Utility.DrawCircle(ObjectManager.Player.Position, Q.Range, Color.Red);
             }
         }
 
@@ -122,8 +125,6 @@ namespace MasterYiByPrunes
 
           //  var MouseTarget = new TargetSelector(Q.Range, TargetSelector.TargetingMode.NearMouse);        future update?
          
-
-
             if (target.IsValidTarget(Q.Range) && R.IsReady() && Config.Item("useR").GetValue<bool>())
             {
                 R.Cast();
@@ -140,7 +141,7 @@ namespace MasterYiByPrunes
             {
                 Qlogic();
             }
-            if (target.IsValidTarget(Q.Range) && E.IsReady() && Config.Item("useE").GetValue<bool>())
+            if (target.IsValidTarget(Q.Range) && E.IsReady() && Config.Item("useE").GetValue<bool>() && Orbwalking.InAutoAttackRange(target))
             {
                 E.Cast();
             }
@@ -179,7 +180,7 @@ namespace MasterYiByPrunes
             {
                 Player.IssueOrder(GameObjectOrder.AttackUnit, target2);
             }
-/*      future update?
+/*      future update? need to find a less laggy method
             else if(MouseTarget.Target.IsEnemy && MouseTarget.Target.IsValidTarget() && !MouseTarget.Target.IsMinion)
             {
 
@@ -201,9 +202,6 @@ namespace MasterYiByPrunes
 
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
             if (target == null) return;
-            var target2 = SimpleTs.GetTarget(300, SimpleTs.DamageType.Physical);
-
-
 
             if (bilgeItem.IsReady() && target.IsValidTarget(bilgeItem.Range))
             {
@@ -255,8 +253,14 @@ namespace MasterYiByPrunes
         public static void Qlogic()
         {
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+            if (Q.GetDamage(target) >= target.Health && Config.Item("Qks").GetValue<bool>())
+            {
+                Q.CastOnUnit(target);
+            }
+            
             if ((Player.MoveSpeed - target.MoveSpeed) < 50 && target.IsMoving && Config.Item("smartQ").GetValue<bool>())
             {
+                
                 Q.CastOnUnit(target);
             }
             if ((target.IsDashing() || target.LastCastedSpellName() == "SummonerFlash") && Config.Item("smartQ").GetValue<bool>())
@@ -270,6 +274,7 @@ namespace MasterYiByPrunes
             if (!Config.Item("smartQ").GetValue<bool>())
             {
                 Q.CastOnUnit(target);
+                
             }
         }
 
