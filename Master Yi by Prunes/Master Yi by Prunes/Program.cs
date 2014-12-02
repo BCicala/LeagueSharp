@@ -6,6 +6,10 @@ using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Channels;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
+using Color = System.Drawing.Color;
+
+
 namespace MasterYiByPrunes
 {
     class Program
@@ -15,6 +19,10 @@ namespace MasterYiByPrunes
         public static Obj_AI_Base Player = ObjectManager.Player;
         public static Spell Q, W, E, R;
         private static Items.Item tiamatItem, hydraItem, botrkItem, bilgeItem, randuinsItem, GhostbladeItem;
+        public static readonly int[] RedMachete = { 3715, 3718, 3717, 3716, 3714 };
+        public static readonly int[] BlueMachete = { 3706, 3710, 3709, 3708, 3707 };
+        public static readonly string[] DodgeSpells = { "Dazzle", "Terrify", "PantheonW", "dariusexecute", "runeprison", "goldcardpreattack", "zedult", "vir", "VayneCondemn", "KatarinaQ", "SyndraR", "blindingdart", "ireliaequilibriumstrike", "maokaiunstablegrowth", "Disintegrate", 
+"VeigarPrimordialBurst", "FioraDance", "NasusQAttack"};
         public static Menu Config;
         public static SpellSlot smiteSlot = SpellSlot.Unknown;
         public static Spell smite;
@@ -34,7 +42,6 @@ namespace MasterYiByPrunes
             W = new Spell(SpellSlot.W);
             E = new Spell(SpellSlot.E);
             R = new Spell(SpellSlot.R);
-
             SpellList.Add(Q);
             SpellList.Add(W);
             SpellList.Add(E);
@@ -47,7 +54,7 @@ namespace MasterYiByPrunes
             randuinsItem = new Items.Item(3143, 490f);
             GhostbladeItem = new Items.Item(3142, 590f);
 
-
+           
             Config = new Menu("Prunes" + ChampName, ChampName, true);
             var ts = new Menu("Target Selector", "Target Selector");
             SimpleTs.AddToMenu(ts);
@@ -66,11 +73,17 @@ namespace MasterYiByPrunes
             Config.SubMenu("Combo").AddItem(new MenuItem("Combo2", "Combo Without Magnet").SetValue(new KeyBind(67, KeyBindType.Press)));
             Config.AddToMainMenu();
 
-            SmiteSlot();
+            Config.AddSubMenu(new Menu("Drawings", "Drawings"));
+            Config.SubMenu("Drawings").AddItem(new MenuItem("QRange", "Q Range").SetValue(new Circle(true, Color.FromArgb(255, 255, 255, 255))));
+
+          //  Config.SubMenu("Drawings")
+           //     .AddItem(new MenuItem("MagnetRadius", "Magnet Radius").SetValue(new Slider(50, 50, 300)));
 
 
             Game.OnGameUpdate += Game_OnGameUpdate;
             GameObject.OnCreate += GameObject_OnCreate;
+            Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
+            Drawing.OnDraw += Drawing_OnDraw;
 
             Game.PrintChat("<font color='#00FFFF'>Master Yi</font><font color='#008000'> By Prunes</font>");
         }
@@ -85,16 +98,31 @@ namespace MasterYiByPrunes
             {
                 Combo2();
             }
+
+        }
+
+        private static void Drawing_OnDraw(EventArgs args)
+        {
+            var menuItem = Config.Item(Q.Slot + "Range").GetValue<Circle>();
+            if (menuItem.Active)
+            {
+                if (Q.IsReady())
+                    Utility.DrawCircle(ObjectManager.Player.Position, Q.Range, System.Drawing.Color.Green);
+                else
+                    Utility.DrawCircle(ObjectManager.Player.Position, Q.Range, System.Drawing.Color.Red);
+            }
         }
 
 
         public static void Combo()
         {
-  
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
             if (target == null) return;
             var target2 = SimpleTs.GetTarget(300, SimpleTs.DamageType.Physical);
-            
+
+          //  var MouseTarget = new TargetSelector(Q.Range, TargetSelector.TargetingMode.NearMouse);        future update?
+         
+
 
             if (target.IsValidTarget(Q.Range) && R.IsReady() && Config.Item("useR").GetValue<bool>())
             {
@@ -146,11 +174,26 @@ namespace MasterYiByPrunes
             if (randuinsItem.IsReady() && target.IsValidTarget(randuinsItem.Range))
             {
                 randuinsItem.Cast();
-            }        
+            }
             else if (target2.IsEnemy && target2.IsValidTarget() && !target2.IsMinion)
             {
                 Player.IssueOrder(GameObjectOrder.AttackUnit, target2);
             }
+/*      future update?
+            else if(MouseTarget.Target.IsEnemy && MouseTarget.Target.IsValidTarget() && !MouseTarget.Target.IsMinion)
+            {
+
+                var CursorCoordsX = Game.CursorPos.X;
+                var CursorCoordsY = Game.CursorPos.Y;
+                var PlayerCoordsX = MouseTarget.Target.Position.X;
+                var PlayerCoordsY = MouseTarget.Target.Position.Y;
+                float SquareSize = 50;
+                if ((CursorCoordsX < PlayerCoordsX + SquareSize && CursorCoordsX > PlayerCoordsX - SquareSize) && (CursorCoordsY < PlayerCoordsY + SquareSize && CursorCoordsY > PlayerCoordsY - SquareSize))
+                {
+                    Player.IssueOrder(GameObjectOrder.AttackUnit, target);
+                }
+            }
+ */
         }
 
         public static void Combo2()
@@ -212,8 +255,6 @@ namespace MasterYiByPrunes
         public static void Qlogic()
         {
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
-
-
             if ((Player.MoveSpeed - target.MoveSpeed) < 50 && target.IsMoving && Config.Item("smartQ").GetValue<bool>())
             {
                 Q.CastOnUnit(target);
@@ -230,18 +271,45 @@ namespace MasterYiByPrunes
             {
                 Q.CastOnUnit(target);
             }
-
         }
 
-        static void GameObject_OnCreate(GameObject turret, EventArgs args)
+        public static void Qtarget()
         {
+        var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+            if (target.IsValidTarget(Q.Range))
+            {
+                Q.Cast(target);
+            }
+        }
+
+        static void GameObject_OnCreate(GameObject sender, EventArgs args)
+        {
+            if (!sender.IsValid || !(sender is Obj_SpellMissile))
+            {
+                return; //not sure if needed
+            }
+
+            var missile = (Obj_SpellMissile)sender;
+
+#if DEBUG //from Evade# i think? VERY useful for debugging
+            if (missile.SpellCaster is Obj_AI_Hero)
+            {
+                Console.WriteLine(
+                    Environment.TickCount + " Projectile Created: " + missile.SData.Name + " distance: " +
+                    missile.StartPosition.Distance(missile.EndPosition) + "Radius: " +
+                    missile.SData.CastRadiusSecondary[0] + " Speed: " + missile.SData.MissileSpeed);
+            }
+
+#endif
+
+    
             var target = ObjectManager.Get<Obj_AI_Minion>().First(it => it.IsValidTarget(Q.Range));
             var champion = ObjectManager.Get<Obj_AI_Hero>().First(it => it.IsValidTarget(Q.Range));
 
           
-            if (Q.IsReady() && turret is Obj_SpellMissile && (champion.IsDead || !champion.IsTargetable))
+            if (Q.IsReady() && sender is Obj_SpellMissile && (champion.IsDead || !champion.IsTargetable))
             {
-                var attack = turret as Obj_SpellMissile;
+                var attack = sender as Obj_SpellMissile;
                 if (attack.SpellCaster is Obj_AI_Turret && attack.SpellCaster.IsEnemy && attack.Target.IsMe)
                 {
                     Q.CastOnUnit(target);
@@ -250,8 +318,22 @@ namespace MasterYiByPrunes
             }
         }
 
-        public static readonly int[] RedMachete = { 3715, 3718, 3717, 3716, 3714 };
-        public static readonly int[] BlueMachete = { 3706, 3710, 3709, 3708, 3707 };
+
+        public static void OnProcessSpellCast(Obj_AI_Base obj, GameObjectProcessSpellCastEventArgs arg)
+        {
+            if (arg.Target.IsMe && obj is Obj_AI_Hero && DodgeSpells.Any(arg.SData.Name.Equals))
+            {
+                Qtarget();
+                Console.WriteLine(arg.SData.Name);
+            }
+            else if (arg.Target.IsMe && obj is Obj_AI_Hero)
+            {
+                Console.Write(arg.SData.Name);
+            }
+        }
+
+
+
         public static string smitetype()
         {
             if (BlueMachete.Any(Items.HasItem))
