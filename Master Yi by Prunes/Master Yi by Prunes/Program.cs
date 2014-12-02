@@ -21,8 +21,9 @@ namespace MasterYiByPrunes
         private static Items.Item tiamatItem, hydraItem, botrkItem, bilgeItem, randuinsItem, GhostbladeItem;
         public static readonly int[] RedMachete = { 3715, 3718, 3717, 3716, 3714 };
         public static readonly int[] BlueMachete = { 3706, 3710, 3709, 3708, 3707 };
-        public static readonly string[] DodgeSpells = { "Dazzle", "Terrify", "PantheonW", "dariusexecute", "runeprison", "goldcardpreattack", "zedult", "vir", "VayneCondemn", "KatarinaQ", "SyndraR", "blindingdart", "ireliaequilibriumstrike", "maokaiunstablegrowth", "Disintegrate", 
-"VeigarPrimordialBurst", "FioraDance", "NasusQAttack"};
+        public static readonly string[] SmiteNames = {"s5_summonersmiteplayerganker", "s5_summonersmiteduel"};
+        public static readonly string[] DodgeSpells = { "infiniteduresschannel", "InfiniteDuress", "Dazzle", "Terrify", "PantheonW", "dariusexecute", "runeprison", "goldcardpreattack", "zedult", "vir", "VayneCondemn", "KatarinaQ", "SyndraR", "blindingdart", "ireliaequilibriumstrike", "maokaiunstablegrowth", "Disintegrate", 
+"VeigarPrimordialBurst", "FioraDance", "NasusQAttack", };
         public static Menu Config;
         public static SpellSlot smiteSlot = SpellSlot.Unknown;
         public static Spell smite;
@@ -278,12 +279,41 @@ namespace MasterYiByPrunes
             }
         }
 
-        public static void Qtarget()
+        public static void Qtarget(string SpellCasted, string champname)
         {
+        var minion = ObjectManager.Get<Obj_AI_Minion>().First(it => it.IsValidTarget(Q.Range));
         var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+        var anychamp = ObjectManager.Get<Obj_AI_Hero>().LastOrDefault(it => it.IsValidTarget(Q.Range));
             if (target.IsValidTarget(Q.Range))
             {
-                Q.Cast(target);
+                Console.WriteLine(SpellCasted);
+                Q.Cast(target, true);
+            }
+            if (minion.IsValidTarget(Q.Range) && SpellCasted == "zedult")
+            {
+                Utility.DelayAction.Add(400, () => Q.CastOnUnit(minion, true));
+            }
+            else if (anychamp.IsValidTarget(Q.Range) && SpellCasted == "zedult")
+            {
+                Utility.DelayAction.Add(400, () => Q.CastOnUnit(anychamp, true));
+            }
+
+        }
+
+        public static void WWsmited()
+        {
+            var longtarg = SimpleTs.GetTarget(1000, SimpleTs.DamageType.Physical);
+            var miniontarg = ObjectManager.Get<Obj_AI_Minion>().First(it => it.IsValidTarget(Q.Range));
+            Console.WriteLine("WW SMITED");
+            Console.WriteLine("Smiter: " + longtarg.BaseSkinName);
+            if (longtarg.IsValidTarget(Q.Range))
+            {
+                Q.CastOnUnit(longtarg, true);
+            }
+            else
+            {
+                Q.CastOnUnit(miniontarg, true);
+                Utility.DelayAction.Add(200, () => Q.CastOnUnit(miniontarg, true));
             }
         }
 
@@ -328,12 +358,12 @@ namespace MasterYiByPrunes
         {
             if (arg.Target.IsMe && obj is Obj_AI_Hero && DodgeSpells.Any(arg.SData.Name.Equals))
             {
-                Qtarget();
+                Qtarget(arg.SData.Name, obj.BaseSkinName);
                 Console.WriteLine(arg.SData.Name);
             }
-            else if (arg.Target.IsMe && obj is Obj_AI_Hero)
+            else if (arg.Target.IsMe && obj.BaseSkinName == "Warwick" && SmiteNames.Any(arg.SData.Name.Equals))
             {
-                Console.Write(arg.SData.Name);
+                WWsmited();
             }
         }
 
