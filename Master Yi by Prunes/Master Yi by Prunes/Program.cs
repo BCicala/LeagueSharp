@@ -22,8 +22,8 @@ namespace MasterYiByPrunes
         public static readonly int[] RedMachete = { 3715, 3718, 3717, 3716, 3714 };
         public static readonly int[] BlueMachete = { 3706, 3710, 3709, 3708, 3707 };
         public static readonly string[] SmiteNames = {"s5_summonersmiteplayerganker", "s5_summonersmiteduel"};
-        public static readonly string[] DodgeSpells = { "infiniteduresschannel", "InfiniteDuress", "Dazzle", "Terrify", "PantheonW", "dariusexecute", "runeprison", "goldcardpreattack", "zedult", "vir", "VayneCondemn", "KatarinaQ", "SyndraR", "blindingdart", "ireliaequilibriumstrike", "maokaiunstablegrowth", "Disintegrate", 
-"VeigarPrimordialBurst", "FioraDance", "NasusQAttack", };
+        public static readonly string[] DodgeSpells = { "infiniteduresschannel", "InfiniteDuress", "Dazzle", "Terrify", "PantheonQ", "dariusexecute", "runeprison", "goldcardpreattack", "zedult", "ViR", "VayneCondemn", "KatarinaQ", "SyndraR", "blindingdart", "ireliaequilibriumstrike", "maokaiunstablegrowth", "Disintegrate", 
+"VeigarPrimordialBurst", "FioraDance", "NasusQAttack"};
         public static Menu Config;
         public static SpellSlot smiteSlot = SpellSlot.Unknown;
         public static Spell smite;
@@ -82,7 +82,7 @@ namespace MasterYiByPrunes
 
           //  Config.SubMenu("Drawings")
            //     .AddItem(new MenuItem("MagnetRadius", "Magnet Radius").SetValue(new Slider(50, 50, 300)));
-
+            SmiteSlot();
 
             Game.OnGameUpdate += Game_OnGameUpdate;
             GameObject.OnCreate += GameObject_OnCreate;
@@ -149,7 +149,8 @@ namespace MasterYiByPrunes
             else if (target.IsValidTarget(Q.Range) && W.IsReady() && Orbwalking.InAutoAttackRange(target) && Config.Item("useW").GetValue<bool>())
             {
                // Player.IssueOrder(GameObjectOrder.AttackTo, target);
-                Utility.DelayAction.Add(350, () => W.Cast());
+                Utility.DelayAction.Add(400, () => W.Cast());
+                W.Cast();
                // Player.IssueOrder(GameObjectOrder.AttackTo, target);
                 Orbwalking.ResetAutoAttackTimer();
             }
@@ -356,6 +357,7 @@ namespace MasterYiByPrunes
 
         public static void OnProcessSpellCast(Obj_AI_Base obj, GameObjectProcessSpellCastEventArgs arg)
         {
+            Console.WriteLine(arg.SData.Name);
             if (arg.Target.IsMe && obj is Obj_AI_Hero && DodgeSpells.Any(arg.SData.Name.Equals))
             {
                 Qtarget(arg.SData.Name, obj.BaseSkinName);
