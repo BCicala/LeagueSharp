@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Channels;
 using LeagueSharp;
 using LeagueSharp.Common;
+using Master_Yi_by_Prunes;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -15,7 +16,8 @@ namespace MasterYiByPrunes
     class Program
     {
         public const string ChampName = "MasterYi";
-        public static Orbwalking.Orbwalker Orbwalker;
+        public static Orbwalking.Orbwalker Orbwalker2;  //change to Orbwalker and delete the LXorbwalker line
+        public static LXOrbwalker Orbwalker = new LXOrbwalker(); // to switch back to default orb
         public static Obj_AI_Base Player = ObjectManager.Player;
         public static Spell Q, W, E, R;
         private static Items.Item tiamatItem, hydraItem, botrkItem, bilgeItem, randuinsItem, GhostbladeItem;
@@ -60,9 +62,12 @@ namespace MasterYiByPrunes
             var ts = new Menu("Target Selector", "Target Selector");
             SimpleTs.AddToMenu(ts);
             Config.AddSubMenu(ts);
-            Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
-            Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
-
+           // Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));             Used for Default Orbwalker
+           // Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));  Used for Default Orbwalker
+            var lxMenu = new Menu("LX_Orbwalker", "LXOrb");  //lx
+           // Orbwalker2 = new Orbwalking.Orbwalker(lxMenu); //lx
+            LXOrbwalker.AddToMenu(lxMenu);
+            Config.AddSubMenu(lxMenu); //lx
             Config.AddSubMenu(new Menu("Combo", "Combo"));
             Config.SubMenu("Combo").AddItem(new MenuItem("useQ", "Use Q?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("useW", "Use W?").SetValue(true));
@@ -148,10 +153,10 @@ namespace MasterYiByPrunes
             }
             else if (target.IsValidTarget(Q.Range) && W.IsReady() && Orbwalking.InAutoAttackRange(target) && Config.Item("useW").GetValue<bool>())
             {
-               // Player.IssueOrder(GameObjectOrder.AttackTo, target);
+                Player.IssueOrder(GameObjectOrder.AttackTo, target);
                 Utility.DelayAction.Add(400, () => W.Cast());
                 W.Cast();
-               // Player.IssueOrder(GameObjectOrder.AttackTo, target);
+                Player.IssueOrder(GameObjectOrder.AttackTo, target);
                 Orbwalking.ResetAutoAttackTimer();
             }
             if (tiamatItem.IsReady() && target.IsValidTarget(tiamatItem.Range))
@@ -178,9 +183,12 @@ namespace MasterYiByPrunes
             {
                 randuinsItem.Cast();
             }
-            else if (target2.IsEnemy && target2.IsValidTarget() && !target2.IsMinion)
+            else if (target2.IsEnemy && target2.IsValidTarget() && !target2.IsMinion && !Player.IsAutoAttacking && !Player.IsWindingUp && !Orbwalking.InAutoAttackRange(target2))
             {
-                Player.IssueOrder(GameObjectOrder.AttackUnit, target2);
+                Player.IssueOrder(GameObjectOrder.AttackTo, target2);
+
+                // Utility.DelayAction.Add(400, () => Player.IssueOrder(GameObjectOrder.AttackUnit, target2));
+                // Player.IssueOrder(GameObjectOrder.AttackUnit, target2);
             }
 /*      future update? need to find a less laggy method
             else if(MouseTarget.Target.IsEnemy && MouseTarget.Target.IsValidTarget() && !MouseTarget.Target.IsMinion)
