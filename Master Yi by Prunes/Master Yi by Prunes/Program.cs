@@ -183,13 +183,13 @@ namespace MasterYiByPrunes
             {
                 randuinsItem.Cast();
             }
-            else if (target2.IsEnemy && target2.IsValidTarget() && !target2.IsMinion && !Player.IsAutoAttacking && !Player.IsWindingUp && !Orbwalking.InAutoAttackRange(target2))
-            {
-                Player.IssueOrder(GameObjectOrder.AttackTo, target2);
+   //   this was magnet, no need with new obwalker         else if (target2.IsEnemy && target2.IsValidTarget() && !target2.IsMinion && !Player.IsAutoAttacking && !Player.IsWindingUp && !Orbwalking.InAutoAttackRange(target2))
+          //  {
+        //        Player.IssueOrder(GameObjectOrder.AttackTo, target2);
 
                 // Utility.DelayAction.Add(400, () => Player.IssueOrder(GameObjectOrder.AttackUnit, target2));
                 // Player.IssueOrder(GameObjectOrder.AttackUnit, target2);
-            }
+           // }
 /*      future update? need to find a less laggy method
             else if(MouseTarget.Target.IsEnemy && MouseTarget.Target.IsValidTarget() && !MouseTarget.Target.IsMinion)
             {
