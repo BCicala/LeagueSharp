@@ -9,8 +9,9 @@ using Color = System.Drawing.Color;
 
 namespace Master_Yi_by_Prunes
 {
-    public class LXOrbwalker
+    public class LxOrbwalker
     {
+        //LxOrbwalker Updated by Prunes for patch 4.21 Update!
 
         private static readonly string[] AttackResets = { "dariusnoxiantacticsonh", "fioraflurry", "garenq", "hecarimrapidslash", "jaxempowertwo", "jaycehypercharge", "leonashieldofdaybreak", "luciane", "lucianq", "monkeykingdoubleattack", "mordekaisermaceofspades", "nasusq", "nautiluspiercinggaze", "netherblade", "parley", "poppydevastatingblow", "powerfist", "renektonpreexecute", "rengarq", "shyvanadoubleattack", "sivirw", "takedown", "talonnoxiandiplomacy", "trundletrollsmash", "vaynetumble", "vie", "volibearq", "xenzhaocombotarget", "yorickspectral" };
         private static readonly string[] NoAttacks = { "jarvanivcataclysmattack", "monkeykingdoubleattack", "shyvanadoubleattack", "shyvanadoubleattackdragon", "zyragraspingplantattack", "zyragraspingplantattack2", "zyragraspingplantattackfire", "zyragraspingplantattack2fire" };
@@ -613,7 +614,7 @@ namespace Master_Yi_by_Prunes
                 killableEnemy = enemy;
                 hitsToKill = killHits;
             }
-            return hitsToKill <= 4 ? killableEnemy : SimpleTs.GetTarget(GetAutoAttackRange() + 100, SimpleTs.DamageType.Physical);
+            return hitsToKill <= 4 ? killableEnemy : TargetSelector.GetTarget(GetAutoAttackRange() + 100, TargetSelector.DamageType.Physical);
         }
 
         public static double CountKillhits(Obj_AI_Base enemy)

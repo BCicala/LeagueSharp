@@ -16,8 +16,9 @@ namespace MasterYiByPrunes
     class Program
     {
         public const string ChampName = "MasterYi";
-        public static Orbwalking.Orbwalker Orbwalker2;  //change to Orbwalker and delete the LXorbwalker line
-        public static LXOrbwalker Orbwalker = new LXOrbwalker(); // to switch back to default orb
+       // public static Orbwalking.Orbwalker Orbwalker;  //change to Orbwalker and delete the LXorbwalker line
+        public static LxOrbwalker Orbwalker = new LxOrbwalker(); // to switch back to default orb
+        //public static Orbwalking.Orbwalker Orbwalker;
         public static Obj_AI_Base Player = ObjectManager.Player;
         public static Spell Q, W, E, R;
         private static Items.Item tiamatItem, hydraItem, botrkItem, bilgeItem, randuinsItem, GhostbladeItem;
@@ -34,10 +35,12 @@ namespace MasterYiByPrunes
         static void Main(string[] args)
         {
             CustomEvents.Game.OnGameLoad += Game_OnGameLoad;
+            Console.Write("loaded");
         }
 
         static void Game_OnGameLoad(EventArgs args)
         {
+
             if (Player.BaseSkinName != ChampName) return;
 
             Q = new Spell(SpellSlot.Q, 600);
@@ -57,18 +60,19 @@ namespace MasterYiByPrunes
             randuinsItem = new Items.Item(3143, 490f);
             GhostbladeItem = new Items.Item(3142, 590f);
 
-           
+
             Config = new Menu("Prunes" + ChampName, ChampName, true);
             var ts = new Menu("Target Selector", "Target Selector");
-            SimpleTs.AddToMenu(ts);
+            TargetSelector.AddToMenu(ts);
+          //  SimpleTs.AddToMenu(ts);
             Config.AddSubMenu(ts);
-           // Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));             Used for Default Orbwalker
-           // Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));  Used for Default Orbwalker
+            //Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));   
+            //Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));  
             var lxMenu = new Menu("LX_Orbwalker", "LXOrb");  //lx
-           // Orbwalker2 = new Orbwalking.Orbwalker(lxMenu); //lx
-            LXOrbwalker.AddToMenu(lxMenu);
+            LxOrbwalker.AddToMenu(lxMenu);
             Config.AddSubMenu(lxMenu); //lx
             Config.AddSubMenu(new Menu("Combo", "Combo"));
+
             Config.SubMenu("Combo").AddItem(new MenuItem("useQ", "Use Q?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("useW", "Use W?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("useE", "Use E?").SetValue(true));
@@ -76,18 +80,19 @@ namespace MasterYiByPrunes
             Config.SubMenu("Combo").AddItem(new MenuItem("useSmite", "Use smite in combo?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("smartQ", "Save Q for dodging/gapclose?").SetValue(true));
             Config.SubMenu("Combo").AddItem(new MenuItem("Qks", "KS with Q?").SetValue(true));
+
+
            // Config.SubMenu("Combo").AddItem(new MenuItem("MSdiff", "Movespeed difference for Q").SetValue(new Slider(50, 0, 200)));
             Config.SubMenu("Combo").AddItem(new MenuItem("ComboActive", "Combo").SetValue(new KeyBind(32, KeyBindType.Press)));
+            //Config.SubMenu("Combo").AddItem( new MenuItem("ComboActive", "Combo!").SetValue(new KeyBind(Config.Item("Orbwalk").GetValue<KeyBind>().Key, KeyBindType.Press)));
             Config.SubMenu("Combo").AddItem(new MenuItem("Combo2", "Combo Without Magnet").SetValue(new KeyBind(67, KeyBindType.Press)));
 
             Config.AddToMainMenu();
 
             Config.AddSubMenu(new Menu("Drawings", "Drawings"));
             Config.SubMenu("Drawings").AddItem(new MenuItem("QRange", "Q Range").SetValue(new Circle(true, Color.FromArgb(255, 255, 255, 255))));
-
-          //  Config.SubMenu("Drawings")
-           //     .AddItem(new MenuItem("MagnetRadius", "Magnet Radius").SetValue(new Slider(50, 50, 300)));
             SmiteSlot();
+
 
             Game.OnGameUpdate += Game_OnGameUpdate;
             GameObject.OnCreate += GameObject_OnCreate;
@@ -125,33 +130,33 @@ namespace MasterYiByPrunes
 
         public static void Combo()
         {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
-            if (target == null) return;
-            var target2 = SimpleTs.GetTarget(300, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
+            var target2 = TargetSelector.GetTarget(Q.Range/2, TargetSelector.DamageType.Physical);
 
-          //  var MouseTarget = new TargetSelector(Q.Range, TargetSelector.TargetingMode.NearMouse);        future update?
-         
-            if (target.IsValidTarget(Q.Range) && R.IsReady() && Config.Item("useR").GetValue<bool>())
+            if (target == null) return;
+            if (R.IsReady() && Config.Item("useR").GetValue<bool>())
             {
+                
                 R.Cast();
             }
-
+            
             if (target.IsValidTarget(Q.Range) &&
-                ObjectManager.Player.SummonerSpellbook.CanUseSpell((smiteSlot)) == SpellState.Ready && (smitetype() == "s5_summonersmiteplayerganker" || smitetype() == "s5_summonersmiteduel") && Config.Item("useSmite").GetValue<bool>())
+                ObjectManager.Player.Spellbook.CanUseSpell((smiteSlot)) == SpellState.Ready && (smitetype() == "s5_summonersmiteplayerganker" || smitetype() == "s5_summonersmiteduel") && Config.Item("useSmite").GetValue<bool>())
             {
                 SmiteSlot();
-                ObjectManager.Player.SummonerSpellbook.CastSpell(smiteSlot, target);
+                ObjectManager.Player.Spellbook.CastSpell(smiteSlot, target);
             }
+             
 
-            if (target.IsValidTarget(Q.Range) && Q.IsReady() && Config.Item("useQ").GetValue<bool>())
+            if (Q.IsReady() && Config.Item("useQ").GetValue<bool>())
             {
                 Qlogic();
             }
-            if (target.IsValidTarget(Q.Range) && E.IsReady() && Config.Item("useE").GetValue<bool>() && Orbwalking.InAutoAttackRange(target))
+            if (E.IsReady() && Config.Item("useE").GetValue<bool>() && Orbwalking.InAutoAttackRange(target))
             {
                 E.Cast();
-            }
-            else if (target.IsValidTarget(Q.Range) && W.IsReady() && Orbwalking.InAutoAttackRange(target) && Config.Item("useW").GetValue<bool>())
+            }    
+            else if (W.IsReady() && Orbwalking.InAutoAttackRange(target) && Config.Item("useW").GetValue<bool>())
             {
                 Player.IssueOrder(GameObjectOrder.AttackTo, target);
                 Utility.DelayAction.Add(400, () => W.Cast());
@@ -159,6 +164,7 @@ namespace MasterYiByPrunes
                 Player.IssueOrder(GameObjectOrder.AttackTo, target);
                 Orbwalking.ResetAutoAttackTimer();
             }
+
             if (tiamatItem.IsReady() && target.IsValidTarget(tiamatItem.Range))
             {
                 tiamatItem.Cast();
@@ -183,34 +189,23 @@ namespace MasterYiByPrunes
             {
                 randuinsItem.Cast();
             }
-   //   this was magnet, no need with new obwalker         else if (target2.IsEnemy && target2.IsValidTarget() && !target2.IsMinion && !Player.IsAutoAttacking && !Player.IsWindingUp && !Orbwalking.InAutoAttackRange(target2))
-          //  {
-        //        Player.IssueOrder(GameObjectOrder.AttackTo, target2);
 
-                // Utility.DelayAction.Add(400, () => Player.IssueOrder(GameObjectOrder.AttackUnit, target2));
-                // Player.IssueOrder(GameObjectOrder.AttackUnit, target2);
-           // }
-/*      future update? need to find a less laggy method
-            else if(MouseTarget.Target.IsEnemy && MouseTarget.Target.IsValidTarget() && !MouseTarget.Target.IsMinion)
-            {
+              //this was magnet, no need with new obwalker 
+                /*
+            else if (target2.IsEnemy && target2.IsValidTarget() && !target2.IsMinion && !Player.IsAutoAttacking && !Player.IsWindingUp && !Orbwalking.InAutoAttackRange(target2))
+             {
+                   Player.IssueOrder(GameObjectOrder.AttackTo, target2);
 
-                var CursorCoordsX = Game.CursorPos.X;
-                var CursorCoordsY = Game.CursorPos.Y;
-                var PlayerCoordsX = MouseTarget.Target.Position.X;
-                var PlayerCoordsY = MouseTarget.Target.Position.Y;
-                float SquareSize = 50;
-                if ((CursorCoordsX < PlayerCoordsX + SquareSize && CursorCoordsX > PlayerCoordsX - SquareSize) && (CursorCoordsY < PlayerCoordsY + SquareSize && CursorCoordsY > PlayerCoordsY - SquareSize))
-                {
-                    Player.IssueOrder(GameObjectOrder.AttackUnit, target);
-                }
-            }
- */
+             Utility.DelayAction.Add(400, () => Player.IssueOrder(GameObjectOrder.AttackUnit, target2));
+             Player.IssueOrder(GameObjectOrder.AttackUnit, target2);
+             }
+                 */
         }
 
         public static void Combo2()
         {
-
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
+           // var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
             if (target == null) return;
 
             if (bilgeItem.IsReady() && target.IsValidTarget(bilgeItem.Range))
@@ -262,7 +257,8 @@ namespace MasterYiByPrunes
 
         public static void Qlogic()
         {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+          //  var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
             if (Q.GetDamage(target) >= target.Health && Config.Item("Qks").GetValue<bool>())
             {
                 Q.CastOnUnit(target);
@@ -291,38 +287,40 @@ namespace MasterYiByPrunes
         public static void Qtarget(string SpellCasted, string champname)
         {
         var minion = ObjectManager.Get<Obj_AI_Minion>().First(it => it.IsValidTarget(Q.Range));
-        var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+       // var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+        var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
         var anychamp = ObjectManager.Get<Obj_AI_Hero>().LastOrDefault(it => it.IsValidTarget(Q.Range));
             if (target.IsValidTarget(Q.Range))
             {
                 Console.WriteLine(SpellCasted);
-                Q.Cast(target, true);
+                Q.Cast(target);
             }
             if (minion.IsValidTarget(Q.Range) && SpellCasted == "zedult")
             {
-                Utility.DelayAction.Add(400, () => Q.CastOnUnit(minion, true));
+                Utility.DelayAction.Add(400, () => Q.CastOnUnit(minion));
             }
             else if (anychamp.IsValidTarget(Q.Range) && SpellCasted == "zedult")
             {
-                Utility.DelayAction.Add(400, () => Q.CastOnUnit(anychamp, true));
+                Utility.DelayAction.Add(400, () => Q.CastOnUnit(anychamp));
             }
 
         }
 
         public static void WWsmited()
         {
-            var longtarg = SimpleTs.GetTarget(1000, SimpleTs.DamageType.Physical);
+          //  var longtarg = SimpleTs.GetTarget(1000, SimpleTs.DamageType.Physical);
+            var longtarg = TargetSelector.GetTarget(1000, TargetSelector.DamageType.Physical);
             var miniontarg = ObjectManager.Get<Obj_AI_Minion>().First(it => it.IsValidTarget(Q.Range));
             Console.WriteLine("WW SMITED");
             Console.WriteLine("Smiter: " + longtarg.BaseSkinName);
             if (longtarg.IsValidTarget(Q.Range))
             {
-                Q.CastOnUnit(longtarg, true);
+                Q.CastOnUnit(longtarg);
             }
             else
             {
                 Q.CastOnUnit(miniontarg, true);
-                Utility.DelayAction.Add(200, () => Q.CastOnUnit(miniontarg, true));
+                Utility.DelayAction.Add(200, () => Q.CastOnUnit(miniontarg));
             }
         }
 
@@ -395,7 +393,7 @@ namespace MasterYiByPrunes
 
         public static void SmiteSlot()
         {
-            foreach (var spell in ObjectManager.Player.SummonerSpellbook.Spells.Where(spell => String.Equals(spell.Name, smitetype(), StringComparison.CurrentCultureIgnoreCase)))
+            foreach (var spell in ObjectManager.Player.Spellbook.Spells.Where(spell => String.Equals(spell.Name, smitetype(), StringComparison.CurrentCultureIgnoreCase)))
             {
                 smiteSlot = spell.Slot;
                 smite = new Spell(smiteSlot, 700);
