@@ -95,7 +95,6 @@ namespace MasterYiByPrunes
 
 
             Game.OnGameUpdate += Game_OnGameUpdate;
-            GameObject.OnCreate += GameObject_OnCreate;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
             Drawing.OnDraw += Drawing_OnDraw;
 
@@ -324,6 +323,7 @@ namespace MasterYiByPrunes
             }
         }
 
+        /*
         static void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
             if (!sender.IsValid || !(sender is Obj_SpellMissile))
@@ -333,6 +333,7 @@ namespace MasterYiByPrunes
 
             var missile = (Obj_SpellMissile)sender;
 
+            
 #if DEBUG //from Evade# i think? VERY useful for debugging
             if (missile.SpellCaster is Obj_AI_Hero)
             {
@@ -343,7 +344,7 @@ namespace MasterYiByPrunes
             }
 
 #endif
-
+            
     
             var target = ObjectManager.Get<Obj_AI_Minion>().First(it => it.IsValidTarget(Q.Range));
             var champion = ObjectManager.Get<Obj_AI_Hero>().First(it => it.IsValidTarget(Q.Range));
@@ -359,11 +360,11 @@ namespace MasterYiByPrunes
                   
             }
         }
-
+*/
 
         public static void OnProcessSpellCast(Obj_AI_Base obj, GameObjectProcessSpellCastEventArgs arg)
         {
-            Console.WriteLine(arg.SData.Name);
+            //Console.WriteLine(arg.SData.Name);
             if (arg.Target.IsMe && obj is Obj_AI_Hero && DodgeSpells.Any(arg.SData.Name.Equals))
             {
                 Qtarget(arg.SData.Name, obj.BaseSkinName);
@@ -371,6 +372,7 @@ namespace MasterYiByPrunes
             }
             else if (arg.Target.IsMe && obj.BaseSkinName == "Warwick" && SmiteNames.Any(arg.SData.Name.Equals))
             {
+                
                 WWsmited();
             }
         }
