@@ -381,11 +381,11 @@ namespace MasterYiByPrunes
 
         public static string smitetype()
         {
-            if (BlueMachete.Any(id => Items.HasItem(id)))
+            if (BlueMachete.Any(Items.HasItem))
             {
                 return "s5_summonersmiteplayerganker";
             }
-            if (RedMachete.Any(id => Items.HasItem(id)))
+            if (RedMachete.Any(Items.HasItem))
             {
                 return "s5_summonersmiteduel";
             }
