@@ -1,0 +1,15 @@
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi by Prunes\Master Yi by Prunes\bin\Release\Master Yi by Prunes.exe.config
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi by Prunes\Master Yi by Prunes\bin\Release\Master Yi by Prunes.exe
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi by Prunes\Master Yi by Prunes\bin\Release\Master Yi by Prunes.pdb
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi by Prunes\Master Yi by Prunes\bin\Release\LeagueSharp.Common.dll
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi by Prunes\Master Yi by Prunes\bin\Release\LeagueSharp.dll
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi by Prunes\Master Yi by Prunes\bin\Release\SharpDX.Direct3D9.dll
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi by Prunes\Master Yi by Prunes\bin\Release\SharpDX.dll
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi by Prunes\Master Yi by Prunes\bin\Release\clipper_library.dll
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi by Prunes\Master Yi by Prunes\bin\Release\LeagueSharp.xml
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi by Prunes\Master Yi by Prunes\obj\Debug\Master Yi by Prunes.csprojResolveAssemblyReference.cache
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi by Prunes\Master Yi by Prunes\obj\Debug\Master Yi by Prunes.exe
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi by Prunes\Master Yi by Prunes\obj\Debug\Master Yi by Prunes.pdb
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi Prunes\Master Yi by Prunes\bin\Release\Master Yi by Prunes.exe.config
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi Prunes\Master Yi by Prunes\obj\Debug\Master Yi by Prunes.exe
+C:\Users\Brandon\Documents\GitHub\LeagueSharp\Master Yi Prunes\Master Yi by Prunes\obj\Debug\Master Yi by Prunes.pdb

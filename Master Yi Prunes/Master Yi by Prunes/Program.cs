@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Channels;
 using LeagueSharp;
 using LeagueSharp.Common;
-using Master_Yi_by_Prunes;
 using SharpDX;
 using Color = System.Drawing.Color;
 
@@ -16,9 +15,9 @@ namespace MasterYiByPrunes
     class Program
     {
         public const string ChampName = "MasterYi";
-       // public static Orbwalking.Orbwalker Orbwalker;  //change to Orbwalker and delete the LXorbwalker line
-        public static LxOrbwalker Orbwalker = new LxOrbwalker(); // to switch back to default orb
-        //public static Orbwalking.Orbwalker Orbwalker;
+        public static Orbwalking.Orbwalker Orbwalker;  //change to Orbwalker and delete the LXorbwalker line
+        //public static LxOrbwalker Orbwalker = new LxOrbwalker(); // to switch back to default orb
+
         public static Obj_AI_Base Player = ObjectManager.Player;
         public static Spell Q, W, E, R;
         private static Items.Item tiamatItem, hydraItem, botrkItem, bilgeItem, randuinsItem, GhostbladeItem;
@@ -66,11 +65,11 @@ namespace MasterYiByPrunes
             TargetSelector.AddToMenu(ts);
           //  SimpleTs.AddToMenu(ts);
             Config.AddSubMenu(ts);
-            //Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));   
-            //Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));  
-            var lxMenu = new Menu("LX_Orbwalker", "LXOrb");  //lx
-            LxOrbwalker.AddToMenu(lxMenu);
-            Config.AddSubMenu(lxMenu); //lx
+            Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));   
+            Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));  
+           // var lxMenu = new Menu("LX_Orbwalker", "LXOrb");  //lx
+            //LxOrbwalker.AddToMenu(lxMenu);
+            //Config.AddSubMenu(lxMenu); //lx
             Config.AddSubMenu(new Menu("Combo", "Combo"));
 
             Config.SubMenu("Combo").AddItem(new MenuItem("useQ", "Use Q?").SetValue(true));
@@ -97,6 +96,7 @@ namespace MasterYiByPrunes
             Game.OnGameUpdate += Game_OnGameUpdate;
             Obj_AI_Base.OnProcessSpellCast += OnProcessSpellCast;
             Drawing.OnDraw += Drawing_OnDraw;
+            GameObject.OnCreate += GameObject_OnCreate;
 
             Game.PrintChat("<font color='#00FFFF'>Master Yi</font><font color='#FFFFFF'> By Prunes</font>");
         }
@@ -112,6 +112,7 @@ namespace MasterYiByPrunes
                 Combo2();
             }
 
+
         }
 
         private static void Drawing_OnDraw(EventArgs args)
@@ -119,10 +120,10 @@ namespace MasterYiByPrunes
             var menuItem = Config.Item(Q.Slot + "Range").GetValue<Circle>();
             if (menuItem.Active)
             {
-                if (Q.IsReady())
-                    Utility.DrawCircle(ObjectManager.Player.Position, Q.Range, Color.Green);
-                else
-                    Utility.DrawCircle(ObjectManager.Player.Position, Q.Range, Color.Red);
+                if (Q.IsReady())       
+                    Render.Circle.DrawCircle(ObjectManager.Player.Position, Q.Range, Color.Green);
+                else           
+                Render.Circle.DrawCircle(ObjectManager.Player.Position, Q.Range, Color.Red);
             }
         }
 
@@ -190,15 +191,15 @@ namespace MasterYiByPrunes
             }
 
               //this was magnet, no need with new obwalker 
-                /*
-            else if (target2.IsEnemy && target2.IsValidTarget() && !target2.IsMinion && !Player.IsAutoAttacking && !Player.IsWindingUp && !Orbwalking.InAutoAttackRange(target2))
+                
+            else if (target2.IsEnemy && target2.IsValidTarget() && !target2.IsMinion && !Player.IsWindingUp && !Orbwalking.InAutoAttackRange(target2))
              {
                    Player.IssueOrder(GameObjectOrder.AttackTo, target2);
 
              Utility.DelayAction.Add(400, () => Player.IssueOrder(GameObjectOrder.AttackUnit, target2));
              Player.IssueOrder(GameObjectOrder.AttackUnit, target2);
              }
-                 */
+                 
         }
 
         public static void Combo2()
@@ -206,6 +207,15 @@ namespace MasterYiByPrunes
             var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Physical);
            // var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
             if (target == null) return;
+            var dragon = ObjectManager.Get<Obj_AI_Minion>().First(it => it.IsValidTarget(Q.Range));
+
+            if (dragon.Spellbook.IsCastingSpell)
+            {
+                Q.CastOnUnit(dragon);
+            }
+
+
+
 
             if (bilgeItem.IsReady() && target.IsValidTarget(bilgeItem.Range))
             {
@@ -298,6 +308,10 @@ namespace MasterYiByPrunes
             {
                 Utility.DelayAction.Add(400, () => Q.CastOnUnit(minion));
             }
+            if (minion.IsValidTarget(Q.Range) && SpellCasted == "DragonFireBall")
+            {
+                Utility.DelayAction.Add(3340, () => Q.CastOnUnit(minion));
+            }
             else if (anychamp.IsValidTarget(Q.Range) && SpellCasted == "zedult")
             {
                 Utility.DelayAction.Add(400, () => Q.CastOnUnit(anychamp));
@@ -322,49 +336,23 @@ namespace MasterYiByPrunes
                 Utility.DelayAction.Add(200, () => Q.CastOnUnit(miniontarg));
             }
         }
-
-        /*
+        
+        
         static void GameObject_OnCreate(GameObject sender, EventArgs args)
         {
-            if (!sender.IsValid || !(sender is Obj_SpellMissile))
+            if (sender is Obj_SpellMissile)
             {
-                return; //not sure if needed
-            }
-
-            var missile = (Obj_SpellMissile)sender;
-
-            
-#if DEBUG //from Evade# i think? VERY useful for debugging
-            if (missile.SpellCaster is Obj_AI_Hero)
-            {
-                Console.WriteLine(
-                    Environment.TickCount + " Projectile Created: " + missile.SData.Name + " distance: " +
-                    missile.StartPosition.Distance(missile.EndPosition) + "Radius: " +
-                    missile.SData.CastRadiusSecondary[0] + " Speed: " + missile.SData.MissileSpeed);
-            }
-
-#endif
-            
-    
-            var target = ObjectManager.Get<Obj_AI_Minion>().First(it => it.IsValidTarget(Q.Range));
-            var champion = ObjectManager.Get<Obj_AI_Hero>().First(it => it.IsValidTarget(Q.Range));
-
-          
-            if (Q.IsReady() && sender is Obj_SpellMissile && (champion.IsDead || !champion.IsTargetable))
-            {
-                var attack = sender as Obj_SpellMissile;
-                if (attack.SpellCaster is Obj_AI_Turret && attack.SpellCaster.IsEnemy && attack.Target.IsMe)
+                var missile = sender as Obj_SpellMissile;
+                if (missile.SpellCaster is Obj_AI_Minion && missile.Target.IsMe)
                 {
-                    Q.CastOnUnit(target);
+                   //Console.WriteLine( "Spellcaster: " + missile.SpellCaster); 
+                   Console.WriteLine("minion attacking");
                 }
-                  
             }
         }
-*/
-
+        
         public static void OnProcessSpellCast(Obj_AI_Base obj, GameObjectProcessSpellCastEventArgs arg)
         {
-            //Console.WriteLine(arg.SData.Name);
             if (arg.Target.IsMe && obj is Obj_AI_Hero && DodgeSpells.Any(arg.SData.Name.Equals))
             {
                 Qtarget(arg.SData.Name, obj.BaseSkinName);
@@ -372,20 +360,28 @@ namespace MasterYiByPrunes
             }
             else if (arg.Target.IsMe && obj.BaseSkinName == "Warwick" && SmiteNames.Any(arg.SData.Name.Equals))
             {
-                
+
                 WWsmited();
             }
+            else if (arg.Target.IsMe && arg.SData.Name == "DragonFireBall")
+            {
+                Console.WriteLine(arg.SData.Name);
+               // Qtarget(arg.SData.Name, obj.BaseSkinName);
+            }
+
         }
 
 
 
         public static string smitetype()
         {
-            if (BlueMachete.Any(Items.HasItem))
+
+            if (BlueMachete.Any(id => Items.HasItem(id)))
             {
                 return "s5_summonersmiteplayerganker";
             }
-            if (RedMachete.Any(Items.HasItem))
+
+            if (RedMachete.Any(id => Items.HasItem(id)))
             {
                 return "s5_summonersmiteduel";
             }
@@ -399,8 +395,12 @@ namespace MasterYiByPrunes
             {
                 smiteSlot = spell.Slot;
                 smite = new Spell(smiteSlot, 700);
+                
                 return;
             }
         }
     }
+
+
+
 }
